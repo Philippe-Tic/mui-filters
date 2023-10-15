@@ -1,4 +1,6 @@
-export const products = [
+import { ProductItems } from "@/types/products";
+
+export const products: ProductItems = [
   {
     id: "8707084648757",
     category: "auto-moto",
