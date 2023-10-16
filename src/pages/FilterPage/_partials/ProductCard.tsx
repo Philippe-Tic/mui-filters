@@ -1,6 +1,6 @@
 import { Text } from "@/components/Text";
 import { ProductItem } from "@/types/products";
-import { Box, Card, CardProps } from "@mui/material";
+import { Box, Card, CardMedia, CardProps } from "@mui/material";
 import { FC } from "react";
 
 type ProductCardProps = CardProps & {
@@ -12,20 +12,19 @@ export const ProductCard: FC<ProductCardProps> = ({ product, ...rest }) => {
     product;
 
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        paddingX: "1rem",
-        paddingY: "1rem",
-      }}
-      {...rest}
-    >
-      <Box>
+    <Card variant="outlined" {...rest}>
+      <CardMedia
+        sx={{ objectFit: "contain" }}
+        component="img"
+        height="194"
+        image={imgLink}
+        alt={title}
+      />
+      <Box px={4}>
         <Text>{id}</Text>
         <Text>{available}</Text>
         <Text>{category}</Text>
         <Text>{categoryId}</Text>
-        <Text>{imgLink}</Text>
         <Text>{price}</Text>
         <Text>{title}</Text>
       </Box>
