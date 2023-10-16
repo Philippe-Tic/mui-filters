@@ -7,17 +7,17 @@ const properties = {
     type: "string",
   },
   available: {
-    label: "Available",
+    label: "Disponibilité",
     value: "available",
     type: "boolean",
   },
   category: {
-    label: "Category",
+    label: "Categorie",
     value: "category",
     type: "string",
   },
   categoryId: {
-    label: "Category ID",
+    label: "Identifiant Catégorie",
     value: "categoryId",
     type: "string",
   },
@@ -71,3 +71,17 @@ export const operatorsOptions: Array<Omit<OptionProps, "type">> = Object.values(
   label: operator.label,
   value: operator.value,
 }));
+
+export const renderOperatorsOptions = (type?: string) => {
+  if (type === "string") {
+    return operatorsOptions?.filter((operatorsOption) => {
+      return operatorsOption?.value === "eq" || operatorsOption?.value === "ne";
+    });
+  }
+  if (type === "boolean") {
+    return operatorsOptions?.filter(
+      (operatorsOption) => operatorsOption?.value === "eq",
+    );
+  }
+  return operatorsOptions;
+};

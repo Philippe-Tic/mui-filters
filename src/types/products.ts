@@ -31,3 +31,5 @@ export type FilterProps = {
     [ValueType, { prop: Array<PropertyType> }]
   >;
 };
+
+export type FormatProductsType = (filter: FilterProps) => ProductItems;

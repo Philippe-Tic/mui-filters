@@ -3,17 +3,18 @@
 import { Select } from "@/components/Select";
 import { Text } from "@/components/Text";
 import { products } from "@/data/products";
-import { ProductCard } from "@/pages/FilterPage/_partials/ProductCard";
+import { ProductCard } from "@/pages/FilterPage/_partials";
 import {
   FilterProps,
   OperatorType,
   ProductItem,
-  ProductItems,
   PropertyType,
 } from "@/types/products";
-import { operatorsOptions, propertiesOptions } from "@/utils/optionsEnum";
+import { propertiesOptions, renderOperatorsOptions } from "@/utils/options";
+import { formatProducts } from "@/utils/products";
 import {
   Box,
+  Button,
   Container,
   Grid,
   SelectChangeEvent,
@@ -28,21 +29,7 @@ export const FilterPage = () => {
   const [operator, setOperator] = useState<OperatorType>("");
   const [value, setValue] = useState<string | undefined>("");
 
-  const renderOperatorsOptions = (type?: string) => {
-    if (type === "string") {
-      return operatorsOptions?.filter((operatorsOption) => {
-        return (
-          operatorsOption?.value === "eq" || operatorsOption?.value === "ne"
-        );
-      });
-    }
-    if (type === "boolean") {
-      return operatorsOptions?.filter(
-        (operatorsOption) => operatorsOption?.value === "eq",
-      );
-    }
-    return operatorsOptions;
-  };
+  const formatedProducts = formatProducts(filter);
 
   useEffect(() => {
     if (property === "available") setOperator("eq");
@@ -71,73 +58,30 @@ export const FilterPage = () => {
     if (propToAdjust === "value") setValue(event.target.value);
   };
 
-  const formatProducts = () => {
-    if (Object.keys(filter).length === 0) return products;
-
-    const formatValue = (value: string | boolean) => {
-      if (value === true) return "available";
-      if (value === false) return "unavailable";
-      return value as string;
-    };
-
-    const filtered = products?.reduce((acc, cur: ProductItem) => {
-      const operator = Object.keys(filter)[0];
-      const property: string = filter[operator as OperatorType]![1].prop[0];
-      const value: string = formatValue(filter[operator]![0]);
-
-      const curProp: string = cur[property as keyof typeof cur].toString();
-
-      if (property === "price") {
-        if (operator === "eq") {
-          return parseFloat(cur[property]) === parseFloat(value)
-            ? [...acc, cur]
-            : acc;
-        }
-        if (operator === "ne") {
-          return parseFloat(cur[property]) !== parseFloat(value)
-            ? [...acc, cur]
-            : acc;
-        }
-        if (operator === "gt") {
-          return parseFloat(cur[property]) >= parseFloat(value)
-            ? [...acc, cur]
-            : acc;
-        }
-        if (operator === "it") {
-          return parseFloat(cur[property]) <= parseFloat(value)
-            ? [...acc, cur]
-            : acc;
-        }
-      }
-
-      if (property === "available") {
-        const valueFormat = value === "available" ? true : false;
-        const curPropToBoolean =
-          curProp === "true" ? true : curProp === "false" ? false : curProp;
-        return curPropToBoolean === valueFormat ? [...acc, cur] : acc;
-      }
-
-      if (operator === "eq") {
-        // rest
-        return curProp.includes(value) ? [...acc, cur] : acc;
-      }
-
-      if (operator === "ne") {
-        return !curProp.includes(value) ? [...acc, cur] : acc;
-      }
-
-      return acc;
-    }, [] as ProductItems);
-    return filtered;
+  const resetFilter = () => {
+    setFilter({});
+    setProperty("");
+    setOperator("");
+    setValue("");
   };
 
   return (
     <Container maxWidth="lg">
-      <Typography my={2} component="h1" variant="h5">
-        Filter Products Page
-      </Typography>
-      {/* Export that */}
+      <Box
+        width="100%"
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Typography my={2} component="h1" variant="h5">
+          Filter Products Page
+        </Typography>
+        <Button onClick={resetFilter}>Reset Filter</Button>
+      </Box>
+
+      {/* Filters */}
       <Grid container spacing={2}>
+        {/* Property */}
         <Grid item xs={12} md={4}>
           <Select
             label="Propriété"
@@ -147,6 +91,8 @@ export const FilterPage = () => {
             width="100%"
           />
         </Grid>
+
+        {/* Operator */}
         {property && (
           <Grid item xs={12} md={4}>
             <Select
@@ -161,6 +107,8 @@ export const FilterPage = () => {
             />
           </Grid>
         )}
+
+        {/* Value */}
         {property && operator && (
           <Grid item xs={12} md={4}>
             {property === "available" ? (
@@ -231,17 +179,26 @@ export const FilterPage = () => {
           </Grid>
         )}
       </Grid>
-      <Text mt={2}>
-        <code>{JSON.stringify(filter)}</code>
-      </Text>
+
+      {/* Empty State */}
       <Box my={2}>
-        <Grid spacing={2} container>
-          {formatProducts()?.map((product: ProductItem) => (
-            <Grid key={product.id} item xs={12} sm={6} md={4}>
-              <ProductCard product={product} />
-            </Grid>
-          ))}
-        </Grid>
+        {!formatedProducts?.length && (
+          <Box>
+            <Text textAlign="center">Pas de résultat pour ce filtre</Text>
+            <Text textAlign="center">¯|_(ツ)_/¯</Text>
+          </Box>
+        )}
+
+        {/* Render products */}
+        {!!formatedProducts?.length && formatedProducts?.length && (
+          <Grid spacing={2} container>
+            {formatedProducts?.map((product: ProductItem) => (
+              <Grid key={product.id} item xs={12} sm={6} md={4}>
+                <ProductCard product={product} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
     </Container>
   );
