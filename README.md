@@ -1,36 +1,19 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Rendu 🧪
 
-## Getting Started
+Bon courage pour la lecture Maxime, bien sûr n'hésite pas à critiquer, ça faisait quelques temps que je n'avais pas configurer autant de chose en typescript (et ça m'a fait un rappel en réinstallant un projet from scratch depuis que Next fait parti de la config "par défaut" de React !)
 
-First, run the development server:
+Je n'ai pas assez de temps perso avant mercredi pour faire la partie "Pour aller plus loin", j'imagine bien l'idée de combiner les filtres en fonction d'opérateurs logiques c'est une bonne petite gymnastique pour le cerveau et on pourrait imaginer du récursif pour ne pas limiter le nombre de niveau 😛
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Je te mets une partie "Auto critique" de mon travail si ça t'intéresse, et hâte de se rencontrer pour débriefer de cela et voir si cela te convient 😄
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Auto critique
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+En terme de style j'ai fait le minimum en juste installant MUI et le Reset CSS proposé par la library, j'ai pas fait de theming vu que ce n'avait pas l'air d'être le sujet et je suis resté sur le fonctionnel sans aller trop loin. J'ai aussi fait le minimum syndical sur le responsive et honnêtement les cards sont pas sexy je me suis pas trop pris la tête sur la présentation 😂
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Sur la partie typage, cela faisait longtemps que je n'avais pas setup autant de chose mine de rien et je pense que tu auras sûrement des retours là dessus et que j'ai laissé quelques erreurs passés qui pourrait jouer sur la mintenabilité si c'était un vrai projet, je pense que ça peut être améliorer mais je pense quand même avoir cadré le typage un minimum (en m'aidant bien sûr d'eslint)
 
-## Learn More
+Sur la partie fonctionnel, j'ai laissé volontairement la possibilité de filtrer toutes les propriétés même si Category et CategoryID était redondant. J'ai effacé les doublon de Category ce que j'aurai pu faire aussi sur les autres champs (je me suis pas pris la tête vu que le jeu de donné n'avait pas d'autres doublon a priori). J'ai normalement fait en sorte que les opérateurs soient cohérent en fonction de la propriété, pareil pour le dernière input de valeur qui change aussi en fonction des autres.
 
-To learn more about Next.js, take a look at the following resources:
+Si on parle d'accessibilité, il doit y avoir pas mal d'alt et autre aria label etc que je n'ai pas du set, c'était pas ma priorité et par manque de temps je pense pas le faire a moins que j'en trouve, mais l'idée est là dans la vraie vie j'aurai fait l'effort promis 😂
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+En te souhaitant une bonne review et je suis à ta dispo !
