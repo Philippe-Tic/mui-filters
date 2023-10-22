@@ -54,7 +54,7 @@ export const ProductCard: FC<ProductCardProps> = ({ product, ...rest }) => {
           }}
           size="medium"
           color="primary"
-          label={eurPrice.format(parseFloat(price))}
+          label={eurPrice.format(price)}
         />
       </Box>
       <CardContent

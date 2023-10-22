@@ -1,6 +1,6 @@
 import { FixedLengthArray } from "@/types/array";
 
-export type ProductItem = {
+export type RawProductItem = {
   id: string;
   category: string;
   title: string;
@@ -9,6 +9,18 @@ export type ProductItem = {
   available: boolean;
   categoryId: string;
 };
+
+export type ProductItem = {
+  id: string;
+  category: string;
+  title: string;
+  price: number;
+  imgLink: string;
+  available: boolean;
+  categoryId: string;
+};
+
+export type RawProductItems = Array<RawProductItem>;
 
 export type ProductItems = Array<ProductItem>;
 
@@ -24,7 +36,7 @@ export type PropertyType =
   | "imgLink"
   | string;
 
-export type ValueType = string | boolean;
+export type ValueType = boolean;
 
 export type FilterProps = {
   [operator in OperatorType]?: FixedLengthArray<
@@ -32,4 +44,6 @@ export type FilterProps = {
   >;
 };
 
-export type FormatProductsType = (filter: FilterProps) => ProductItems;
+export type FilterProductsType = (filter: FilterProps) => ProductItems;
+
+export type FormatPriceType = (price: string) => number;

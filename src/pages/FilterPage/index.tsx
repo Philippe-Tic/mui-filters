@@ -11,7 +11,7 @@ import {
   PropertyType,
 } from "@/types/products";
 import { propertiesOptions, renderOperatorsOptions } from "@/utils/options";
-import { formatProducts } from "@/utils/products";
+import { filterProducts } from "@/utils/products";
 import {
   Box,
   Button,
@@ -25,12 +25,16 @@ import { useEffect, useState } from "react";
 
 export const FilterPage = () => {
   const [filter, setFilter] = useState<FilterProps>({});
+
+  // Delete this states, base the filters on the object
   const [property, setProperty] = useState<PropertyType>("");
   const [operator, setOperator] = useState<OperatorType>("");
-  const [value, setValue] = useState<string | undefined>("");
+  const [value, setValue] = useState<string>("");
 
-  const formatedProducts = formatProducts(filter);
+  // This should be a memo
+  const formatedProducts = filterProducts(filter);
 
+  // This will be deleted
   useEffect(() => {
     if (property === "available") setOperator("eq");
     if (property && operator && value) {
@@ -43,6 +47,7 @@ export const FilterPage = () => {
     }
   }, [property, operator, value]);
 
+  // this is an arrow func that return an arrow func
   const handleChange = (
     event: SelectChangeEvent<string>,
     propToAdjust: string,
@@ -55,7 +60,10 @@ export const FilterPage = () => {
     if (propToAdjust === "operator") {
       setOperator(event.target.value);
     }
-    if (propToAdjust === "value") setValue(event.target.value);
+    if (propToAdjust === "value") {
+      console.log(event.target.value);
+      setValue(event.target.value);
+    }
   };
 
   const resetFilter = () => {
@@ -115,8 +123,8 @@ export const FilterPage = () => {
               <Select
                 label="Valeur"
                 options={[
-                  { label: "Disponible", value: "available" },
-                  { label: "Indisponible", value: "unavailable" },
+                  { label: "Disponible", value: "true" },
+                  { label: "Indisponible", value: "false" },
                 ]}
                 value={value}
                 handleChange={(event) => handleChange(event, "value")}

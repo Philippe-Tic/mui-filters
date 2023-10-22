@@ -59,29 +59,27 @@ const operators = {
 
 export const propertiesOptions: Array<OptionProps> = Object.values(
   properties,
-).map((prop) => ({
-  label: prop.label,
-  value: prop.value,
-  type: prop.type,
-}));
+).map((prop) => prop);
 
-export const operatorsOptions: Array<Omit<OptionProps, "type">> = Object.values(
+export const operatorsOptions: Array<OptionProps> = Object.values(
   operators,
-).map((operator) => ({
-  label: operator.label,
-  value: operator.value,
+).map(({ label, value }) => ({
+  label,
+  value,
 }));
 
-export const renderOperatorsOptions = (type?: string) => {
-  if (type === "string") {
-    return operatorsOptions?.filter((operatorsOption) => {
-      return operatorsOption?.value === "eq" || operatorsOption?.value === "ne";
-    });
-  }
-  if (type === "boolean") {
-    return operatorsOptions?.filter(
-      (operatorsOption) => operatorsOption?.value === "eq",
+const renderOperatorsOptionsMap = {
+  string: ["eq", "ne"],
+  boolean: ["eq"],
+  number: ["eq", "ne", "gt", "it"],
+};
+
+export const renderOperatorsOptions = (
+  type: "string" | "boolean" | "number",
+) => {
+  return operatorsOptions?.filter((operatorsOption) => {
+    return renderOperatorsOptionsMap[type].some(
+      (o) => o === operatorsOption.value,
     );
-  }
-  return operatorsOptions;
+  });
 };
