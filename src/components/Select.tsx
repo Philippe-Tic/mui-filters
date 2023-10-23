@@ -21,7 +21,7 @@ export const Select: FC<SelectProps> = ({
       <MUISelect
         labelId={`select-label-${label}`}
         id={`select-${label}`}
-        value={value}
+        value={value.toString()}
         label={label}
         onChange={handleChange}
       >

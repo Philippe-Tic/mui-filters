@@ -1,6 +1,10 @@
-import { ProductItems } from "@/types/products";
+import {
+  ProductItems,
+  RawProductItem,
+  RawProductItems,
+} from "@/types/products";
 
-export const products: ProductItems = [
+const rawProducts: RawProductItems = [
   {
     id: "8707084648757",
     category: "auto-moto",
@@ -303,3 +307,8 @@ export const products: ProductItems = [
     categoryId: '["gid://shopify/Collection/483494592821"]',
   },
 ];
+
+export const products: ProductItems = rawProducts.map((p: RawProductItem) => ({
+  ...p,
+  price: parseFloat(p.price),
+}));

@@ -1,5 +1,11 @@
 import { OptionProps } from "@/types/select";
 
+type PropertyType = {
+  label: string;
+  value: string;
+  type: "string" | "number" | "boolean";
+};
+
 const properties = {
   id: {
     label: "ID",
@@ -57,31 +63,30 @@ const operators = {
   },
 };
 
-export const propertiesOptions: Array<OptionProps> = Object.values(
+export const propertiesOptions: Array<PropertyType> = Object.values(
   properties,
-).map((prop) => ({
-  label: prop.label,
-  value: prop.value,
-  type: prop.type,
-}));
+).map((prop) => prop as PropertyType);
 
-export const operatorsOptions: Array<Omit<OptionProps, "type">> = Object.values(
+export const operatorsOptions: Array<OptionProps> = Object.values(
   operators,
-).map((operator) => ({
-  label: operator.label,
-  value: operator.value,
+).map(({ label, value }) => ({
+  label,
+  value,
 }));
 
-export const renderOperatorsOptions = (type?: string) => {
-  if (type === "string") {
-    return operatorsOptions?.filter((operatorsOption) => {
-      return operatorsOption?.value === "eq" || operatorsOption?.value === "ne";
-    });
-  }
-  if (type === "boolean") {
-    return operatorsOptions?.filter(
-      (operatorsOption) => operatorsOption?.value === "eq",
+const renderOperatorsOptionsMap = {
+  string: ["eq", "ne"],
+  boolean: ["eq"],
+  number: ["eq", "ne", "gt", "it"],
+};
+
+export const renderOperatorsOptions = (
+  type: "string" | "boolean" | "number" | undefined,
+) => {
+  return operatorsOptions?.filter((operatorsOption) => {
+    return (
+      !!type &&
+      renderOperatorsOptionsMap[type]?.some((o) => o === operatorsOption.value)
     );
-  }
-  return operatorsOptions;
+  });
 };
