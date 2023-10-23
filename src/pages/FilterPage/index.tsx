@@ -4,12 +4,7 @@ import { Select } from "@/components/Select";
 import { Text } from "@/components/Text";
 import { products } from "@/data/products";
 import { ProductCard } from "@/pages/FilterPage/_partials";
-import {
-  FilterProps,
-  OperatorType,
-  ProductItem,
-  PropertyType,
-} from "@/types/products";
+import { FilterProps, ProductItem } from "@/types/products";
 import { propertiesOptions, renderOperatorsOptions } from "@/utils/options";
 import { filterProducts } from "@/utils/products";
 import {
@@ -21,56 +16,133 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 
 export const FilterPage = () => {
-  const [filter, setFilter] = useState<FilterProps>({});
+  const [filter, setFilter] = useState<FilterProps>({
+    "": ["", { prop: [""] }],
+  });
 
-  // Delete this states, base the filters on the object
-  const [property, setProperty] = useState<PropertyType>("");
-  const [operator, setOperator] = useState<OperatorType>("");
-  const [value, setValue] = useState<string>("");
-
-  // This should be a memo
-  const formatedProducts = filterProducts(filter);
-
-  // This will be deleted
-  useEffect(() => {
-    if (property === "available") setOperator("eq");
-    if (property && operator && value) {
-      const buildFilters: FilterProps = {
-        [operator]: [value, { prop: [property] }],
-      };
-      setFilter(buildFilters);
-    } else {
-      setFilter({});
-    }
-  }, [property, operator, value]);
-
-  // this is an arrow func that return an arrow func
-  const handleChange = (
-    event: SelectChangeEvent<string>,
-    propToAdjust: string,
-  ) => {
-    if (propToAdjust === "property") {
-      setOperator("");
-      setValue("");
-      setProperty(event.target.value as PropertyType);
-    }
-    if (propToAdjust === "operator") {
-      setOperator(event.target.value);
-    }
-    if (propToAdjust === "value") {
-      console.log(event.target.value);
-      setValue(event.target.value);
-    }
+  const fields = {
+    operator: Object.keys(filter)[0],
+    property: filter[Object.keys(filter)[0]]![1].prop[0],
+    value: filter[Object.keys(filter)[0]]![0],
   };
 
-  const resetFilter = () => {
-    setFilter({});
-    setProperty("");
-    setOperator("");
-    setValue("");
+  const { operator, property, value } = fields;
+
+  // Memoized Lists Options
+  const memoizedOperatorsOptions = useMemo(() => {
+    return renderOperatorsOptions(
+      propertiesOptions?.find((prop) => prop.value === property)?.type,
+    );
+  }, [propertiesOptions, property]);
+
+  const memoizedFilteredProducts = useMemo(
+    () => filterProducts(filter),
+    [filter],
+  );
+
+  const memoizedValueOptions = useMemo(() => {
+    return [
+      ...new Set(
+        products
+          .filter((product) =>
+            products.some(
+              (pr) =>
+                pr[property as keyof typeof pr] ===
+                product[property as keyof typeof product],
+            ),
+          )
+          .map((product) => product[property as keyof typeof product]),
+      ),
+    ].map((product) => ({
+      label: product?.toString(),
+      value: product?.toString(),
+    }));
+  }, [products, property]);
+
+  const availableOptions = [
+    { label: "Disponible", value: "true" },
+    { label: "Indisponible", value: "false" },
+  ];
+
+  // Handle change for inputs
+  const handleChange =
+    (field: "property" | "operator" | "value") =>
+    (
+      event:
+        | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        | SelectChangeEvent<string>,
+    ) => {
+      const fieldOptions = {
+        property: () => setFilter({ "": ["", { prop: [event.target.value] }] }),
+        operator: () =>
+          setFilter({
+            [event.target.value]: ["", { prop: [fields.property] }],
+          }),
+        value: () =>
+          setFilter({
+            [fields.operator]: [
+              event.target.value,
+              { prop: [fields.property] },
+            ],
+          }),
+      };
+
+      return fieldOptions[field]();
+    };
+
+  // Render value input
+  const valueComponentKeys = {
+    available: "available",
+    price: "price",
+    title: "title",
+    id: "other",
+    category: "other",
+    categoryId: "other",
+    imgLink: "other",
+  };
+
+  const renderValueComponent = {
+    available: (
+      <Select
+        label="Valeur"
+        options={availableOptions}
+        value={value}
+        handleChange={handleChange("value")}
+        width="100%"
+      />
+    ),
+    price: (
+      <TextField
+        id="value-input"
+        type="number"
+        label={propertiesOptions.find((prop) => prop.value === property)?.label}
+        value={value}
+        onChange={handleChange("value")}
+        fullWidth
+      />
+    ),
+    title: (
+      <TextField
+        id="value-input"
+        type="text"
+        label={propertiesOptions.find((prop) => prop.value === property)?.label}
+        value={value}
+        onChange={handleChange("value")}
+        fullWidth
+      />
+    ),
+    other: (
+      <Select
+        label={propertiesOptions.find((prop) => prop.value === property)?.label}
+        options={memoizedValueOptions}
+        value={value}
+        handleChange={handleChange("value")}
+        width="100%"
+      />
+    ),
   };
 
   return (
@@ -84,7 +156,15 @@ export const FilterPage = () => {
         <Typography my={2} component="h1" variant="h5">
           Filter Products Page
         </Typography>
-        <Button onClick={resetFilter}>Reset Filter</Button>
+        <Button
+          onClick={() =>
+            setFilter({
+              "": ["", { prop: [""] }],
+            })
+          }
+        >
+          Reset Filter
+        </Button>
       </Box>
 
       {/* Filters */}
@@ -95,7 +175,7 @@ export const FilterPage = () => {
             label="Propriété"
             options={propertiesOptions}
             value={property}
-            handleChange={(event) => handleChange(event, "property")}
+            handleChange={handleChange("property")}
             width="100%"
           />
         </Grid>
@@ -105,12 +185,9 @@ export const FilterPage = () => {
           <Grid item xs={12} md={4}>
             <Select
               label="Opérateur"
-              options={renderOperatorsOptions(
-                propertiesOptions?.find((prop) => prop?.value === property)
-                  ?.type,
-              )}
+              options={memoizedOperatorsOptions}
               value={operator}
-              handleChange={(event) => handleChange(event, "operator")}
+              handleChange={handleChange("operator")}
               width="100%"
             />
           </Grid>
@@ -119,78 +196,20 @@ export const FilterPage = () => {
         {/* Value */}
         {property && operator && (
           <Grid item xs={12} md={4}>
-            {property === "available" ? (
-              <Select
-                label="Valeur"
-                options={[
-                  { label: "Disponible", value: "true" },
-                  { label: "Indisponible", value: "false" },
-                ]}
-                value={value}
-                handleChange={(event) => handleChange(event, "value")}
-                width="100%"
-              />
-            ) : (
-              <>
-                {property === "price" || property === "title" ? (
-                  <TextField
-                    id="value-input"
-                    type={property === "price" ? "number" : "text"}
-                    label={
-                      propertiesOptions.find((prop) => prop.value === property)
-                        ?.label
-                    }
-                    value={value}
-                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                      setValue(event.target.value);
-                    }}
-                    fullWidth
-                  />
-                ) : (
-                  <Select
-                    label={
-                      propertiesOptions.find((prop) => prop.value === property)
-                        ?.label
-                    }
-                    options={products
-                      ?.reduce(
-                        (
-                          acc: Array<
-                            Omit<ProductItem, "available" | "price" | "title">
-                          >,
-                          cur: ProductItem,
-                        ) => {
-                          if (
-                            acc?.some(
-                              (p) =>
-                                p[property as keyof typeof p] ===
-                                cur[property as keyof typeof p],
-                            )
-                          ) {
-                            return acc;
-                          }
-                          return [...acc, cur];
-                        },
-                        [],
-                      )
-                      ?.map((product) => ({
-                        label: product[property as keyof typeof product],
-                        value: product[property as keyof typeof product],
-                      }))}
-                    value={value}
-                    handleChange={(event) => handleChange(event, "value")}
-                    width="100%"
-                  />
-                )}
-              </>
-            )}
+            {
+              renderValueComponent[
+                valueComponentKeys[
+                  property as keyof typeof valueComponentKeys
+                ] as keyof typeof renderValueComponent
+              ]
+            }
           </Grid>
         )}
       </Grid>
 
       {/* Empty State */}
       <Box my={2}>
-        {!formatedProducts?.length && (
+        {!memoizedFilteredProducts?.length && (
           <Box>
             <Text textAlign="center">Pas de résultat pour ce filtre</Text>
             <Text textAlign="center">¯|_(ツ)_/¯</Text>
@@ -198,15 +217,16 @@ export const FilterPage = () => {
         )}
 
         {/* Render products */}
-        {!!formatedProducts?.length && formatedProducts?.length && (
-          <Grid spacing={2} container>
-            {formatedProducts?.map((product: ProductItem) => (
-              <Grid key={product.id} item xs={12} sm={6} md={4}>
-                <ProductCard product={product} />
-              </Grid>
-            ))}
-          </Grid>
-        )}
+        {!!memoizedFilteredProducts?.length &&
+          memoizedFilteredProducts?.length && (
+            <Grid spacing={2} container>
+              {memoizedFilteredProducts?.map((product: ProductItem) => (
+                <Grid key={product.id} item xs={12} sm={6} md={4}>
+                  <ProductCard product={product} />
+                </Grid>
+              ))}
+            </Grid>
+          )}
       </Box>
     </Container>
   );

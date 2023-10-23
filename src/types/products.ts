@@ -36,7 +36,9 @@ export type PropertyType =
   | "imgLink"
   | string;
 
-export type ValueType = boolean;
+export type ValueType = string | number;
+
+export type TypeString = "string" | "boolean" | "number";
 
 export type FilterProps = {
   [operator in OperatorType]?: FixedLengthArray<

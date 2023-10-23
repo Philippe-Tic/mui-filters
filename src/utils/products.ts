@@ -1,39 +1,46 @@
 import { products } from "@/data/products";
 import {
   FilterProductsType,
-  OperatorType,
   ProductItem,
   ProductItems,
+  TypeString,
 } from "@/types/products";
 
-const shouldAdd = (obj, value) => ({
+const shouldAdd = (obj: keyof ProductItem, value: string) => ({
   number: {
-    eq: obj === parseFloat(value),
-    ne: obj !== parseFloat(value),
-    gt: obj >= parseFloat(value),
-    it: obj <= parseFloat(value),
+    eq: parseFloat(obj) === parseFloat(value),
+    ne: parseFloat(obj) !== parseFloat(value),
+    gt: parseFloat(obj) >= parseFloat(value),
+    it: parseFloat(obj) <= parseFloat(value),
   },
   boolean: {
     eq: obj.toString() === value,
+    ne: false,
+    gt: false,
+    it: false,
   },
   string: {
     eq: obj.toString().toLowerCase().includes(value.toLowerCase()),
     ne: !obj.toString().toLowerCase().includes(value.toLowerCase()),
+    gt: false,
+    it: false,
   },
 });
 
 export const filterProducts: FilterProductsType = (filter) => {
-  if (Object.keys(filter).length === 0) return products;
+  const operator = Object.keys(filter)[0];
+  const property = filter[operator]![1].prop[0];
+  const value = filter[operator]![0];
+  if (Object.keys(filter).length === 0 || !operator || !property || !value)
+    return products;
 
   const filtered = products.reduce((acc, cur: ProductItem) => {
-    const operator = Object.keys(filter)[0];
-    const property = filter[operator as OperatorType]![1].prop[0];
-    const value = filter[operator]![0];
-    const type: string | boolean | number = typeof cur[property];
+    const current = cur[property as keyof ProductItem];
+    const type = typeof current as TypeString;
 
-    return shouldAdd(cur[property], value)[type][operator]
-      ? [...acc, cur]
-      : acc;
+    const rule = shouldAdd(current as keyof ProductItem, value as string)[type];
+
+    return rule[operator as keyof typeof rule] ? [...acc, cur] : acc;
   }, [] as ProductItems);
   return filtered;
 };
